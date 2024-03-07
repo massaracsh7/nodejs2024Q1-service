@@ -4,8 +4,10 @@ import {
   Param,
   Post,
   Body,
-  Put,
   Delete,
+  Put,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { AlbumService } from './album.service';
 import { CreateAlbumDto, UpdateAlbumDto } from '../types';
@@ -15,27 +17,28 @@ export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
 
   @Get()
-  findAll() {
-    return this.albumService.findAll();
+  getAllAlbums() {
+    return this.albumService.getAllAlbums();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.albumService.findOne(id);
+  getAlbumById(@Param('id') id: string) {
+    return this.albumService.getAlbumById(id);
   }
 
   @Post()
-  create(@Body() createAlbumDto: CreateAlbumDto) {
-    return this.albumService.create(createAlbumDto);
+  @HttpCode(HttpStatus.CREATED)
+  createAlbum(@Body() createAlbumDto: CreateAlbumDto) {
+    return this.albumService.createAlbum(createAlbumDto);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateAlbumDto: UpdateAlbumDto) {
-    return this.albumService.update(id, updateAlbumDto);
+  updateAlbum(@Param('id') id: string, @Body() updateAlbumDto: UpdateAlbumDto) {
+    return this.albumService.updateAlbum(id, updateAlbumDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.albumService.remove(id);
+  async deleteAlbum(@Param('id') id: string) {
+    await this.albumService.deleteAlbum(id);
   }
 }

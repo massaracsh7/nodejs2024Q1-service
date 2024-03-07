@@ -85,3 +85,10 @@ export class CreateAlbumDto {
   readonly year: number;
   readonly artistId: string;
 }
+
+import { IsUUID } from 'class-validator';
+
+export class AddFavoriteDto {
+  @IsUUID()
+  readonly id: string;
+}
