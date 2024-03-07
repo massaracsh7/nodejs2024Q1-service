@@ -39,6 +39,9 @@ export class UserController {
     @Param('id') id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
   ) {
+    if (!this.isValidUUID(id)) {
+      return { statusCode: 400, message: 'Invalid user ID' };
+    }
     const updatedUser = this.userService.updatePassword(id, updatePasswordDto);
     if (!updatedUser) {
       return { statusCode: 404, message: 'User not found' };
@@ -46,5 +49,9 @@ export class UserController {
     return { statusCode: 200, data: updatedUser };
   }
 
-
+  private isValidUUID(id: string): boolean {
+    const uuidRegex =
+      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    return uuidRegex.test(id);
+  }
 }
