@@ -59,3 +59,17 @@ export class UpdateArtistDto {
   readonly name?: string;
   readonly grammy?: boolean;
 }
+
+export class CreateTrackDto {
+  readonly name: string;
+  readonly artistId: string;
+  readonly albumId: string;
+  readonly duration: number;
+}
+
+export class UpdateTrackDto {
+  readonly name?: string;
+  readonly artistId?: string;
+  readonly albumId?: string;
+  readonly duration?: number;
+}
