@@ -7,7 +7,7 @@ export interface User {
   updatedAt: number;
 }
 
-export interface CreateUserDto {
+export class CreateUserDto {
   login: string;
   password: string;
 }
@@ -45,7 +45,7 @@ export interface FavoritesResponse {
   tracks: Track[];
 }
 
-export interface UpdatePasswordDto {
+export class UpdatePasswordDto {
   oldPassword: string; // previous password
   newPassword: string; // new password
 }
@@ -72,4 +72,16 @@ export class UpdateTrackDto {
   readonly artistId?: string;
   readonly albumId?: string;
   readonly duration?: number;
+}
+
+export class UpdateAlbumDto {
+  readonly name?: string;
+  readonly year?: number;
+  readonly artistId?: string;
+}
+
+export class CreateAlbumDto {
+  readonly name: string;
+  readonly year: number;
+  readonly artistId: string;
 }
