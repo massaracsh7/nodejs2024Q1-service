@@ -49,3 +49,13 @@ export interface UpdatePasswordDto {
   oldPassword: string; // previous password
   newPassword: string; // new password
 }
+
+export class CreateArtistDto {
+  readonly name: string;
+  readonly grammy: boolean;
+}
+
+export class UpdateArtistDto {
+  readonly name?: string;
+  readonly grammy?: boolean;
+}
