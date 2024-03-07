@@ -1,6 +1,14 @@
-import { Controller, Get, Param, Post, Body, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Body,
+  Delete,
+  Put,
+} from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from '../types';
+import { CreateUserDto, UpdatePasswordDto } from '../types';
 
 @Controller('users')
 export class UserController {
@@ -25,4 +33,18 @@ export class UserController {
   remove(@Param('id') id: string) {
     return this.userService.remove(id);
   }
+
+  @Put(':id')
+  updatePassword(
+    @Param('id') id: string,
+    @Body() updatePasswordDto: UpdatePasswordDto,
+  ) {
+    const updatedUser = this.userService.updatePassword(id, updatePasswordDto);
+    if (!updatedUser) {
+      return { statusCode: 404, message: 'User not found' };
+    }
+    return { statusCode: 200, data: updatedUser };
+  }
+
+
 }
