@@ -1,41 +1,51 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto, UpdatePasswordDto } from '../types';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreateUserDto, UpdatePasswordDto, User } from '../types';
+import { Data } from 'src/data/data.service';
 
 @Injectable()
 export class UserService {
-  private readonly users = [];
+  constructor(private readonly database: Data) {}
 
-  findAll() {
-    return this.users;
+  findAll(): User[] {
+    return this.database.users;
   }
 
-  findOne(id: string) {
-    return this.users.find((user) => user.id === id);
+  findOne(id: string): User {
+    const user = this.database.users.find((user) => user.id === id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 
-  create(createUserDto: CreateUserDto) {
-    const newUser = { id: 'sample-id', ...createUserDto };
-    this.users.push(newUser);
+  create(createUserDto: CreateUserDto): User {
+    const newUser: User = {
+      id: 'sample-id', // You may want to generate a unique ID here
+      ...createUserDto,
+      version: 0,
+      createdAt: 0,
+      updatedAt: 0,
+    };
+    this.database.users.push(newUser);
     return newUser;
   }
 
-  updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
-    const userIndex = this.users.findIndex((user) => user.id === id);
-    if (userIndex === -1) {
-      return null;
-    }
-    const user = this.users[userIndex];
+  updatePassword(
+    id: string,
+    updatePasswordDto: UpdatePasswordDto,
+  ): User | null | false {
+    const user = this.findOne(id);
     if (user.password !== updatePasswordDto.oldPassword) {
       return false;
     }
-    this.users[userIndex].password = updatePasswordDto.newPassword;
-    return this.users[userIndex];
+    user.password = updatePasswordDto.newPassword;
+    return user;
   }
 
-  remove(id: string) {
-    const index = this.users.findIndex((user) => user.id === id);
+  remove(id: string): boolean {
+    const index = this.database.users.findIndex((user) => user.id === id);
     if (index !== -1) {
-      this.users.splice(index, 1);
+      this.database.users.splice(index, 1);
       return true;
     }
     return false;

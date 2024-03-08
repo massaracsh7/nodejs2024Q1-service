@@ -5,18 +5,23 @@ import {
 } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateAlbumDto, UpdateAlbumDto, Album } from '../types';
+import { FavoritesService } from 'src/favorites/favorites.service';
+import { Data } from 'src/data/data.service';
 
 @Injectable()
 export class AlbumService {
-  private albums: Album[] = [];
+  constructor(
+    private database: Data,
+    private favoriteService: FavoritesService,
+  ) {}
 
   getAllAlbums(): Album[] {
-    return this.albums;
+    return this.database.albums;
   }
 
   getAlbumById(id: string): Album {
     this.validateUUID(id);
-    const album = this.albums.find((album) => album.id === id);
+    const album = this.database.albums.find((album) => album.id === id);
     if (!album) {
       throw new NotFoundException('Album not found');
     }
@@ -34,7 +39,7 @@ export class AlbumService {
       year,
       artistId,
     };
-    this.albums.push(album);
+    this.database.albums.push(album);
     return album;
   }
 
@@ -56,11 +61,11 @@ export class AlbumService {
 
   async deleteAlbum(id: string): Promise<void> {
     this.validateUUID(id);
-    const index = this.albums.findIndex((album) => album.id === id);
+    const index = this.database.albums.findIndex((album) => album.id === id);
     if (index === -1) {
       throw new NotFoundException('Album not found');
     }
-    this.albums.splice(index, 1);
+    this.database.albums.splice(index, 1);
   }
 
   private validateUUID(id: string): void {

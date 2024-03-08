@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 export interface User {
   id: string;
   login: string;
@@ -91,4 +92,17 @@ import { IsUUID } from 'class-validator';
 export class AddFavoriteDto {
   @IsUUID()
   readonly id: string;
+}
+
+@Injectable()
+export class Database {
+  users: User[] = [];
+  artists: Artist[] = [];
+  tracks: Track[] = [];
+  albums: Album[] = [];
+  favorites: Favorites = {
+    artists: [],
+    albums: [],
+    tracks: [],
+  };
 }

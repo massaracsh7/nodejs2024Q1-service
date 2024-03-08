@@ -1,81 +1,68 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { FavoritesResponse } from '../types';
-import { ArtistService } from '../artists/artist.service';
-import { AlbumService } from '../albums/album.service';
-import { TrackService } from '../tracks/track.service';
+import { Data } from '../data/data.service';
 
 @Injectable()
 export class FavoritesService {
-  constructor(
-    private readonly artistService: ArtistService,
-    private readonly albumService: AlbumService,
-    private readonly trackService: TrackService,
-  ) {}
+  constructor(private readonly data: Data) {}
 
-  async getAllFavorites(): Promise<FavoritesResponse> {
-    const artists = await this.artistService.findAll();
-    const albums = await this.albumService.getAllAlbums();
-    const tracks = await this.trackService.findAll();
+  getAllFavorites() {
+    const { artists, albums, tracks } = this.data.favorites;
     return { artists, albums, tracks };
   }
 
-  async addTrackToFavorites(trackId: string): Promise<string> {
-    // Check if track exists
-    const track = await this.trackService.findOne(trackId);
+  addTrackToFavorites(trackId: string) {
+    const track = this.data.tracks.find((t) => t.id === trackId);
     if (!track) {
       throw new NotFoundException('Track not found');
     }
-    // Add track to favorites logic
+    this.data.favorites.tracks.push(trackId);
     return 'Track added to favorites';
   }
 
-  async removeTrackFromFavorites(trackId: string): Promise<string> {
-    // Check if track exists
-    const track = await this.trackService.findOne(trackId);
-    if (!track) {
-      throw new NotFoundException('Track not found');
+  removeTrackFromFavorites(trackId: string) {
+    const index = this.data.favorites.tracks.findIndex((id) => id === trackId);
+    if (index === -1) {
+      throw new NotFoundException('Track not found in favorites');
     }
-    // Remove track from favorites logic
+    this.data.favorites.tracks.splice(index, 1);
     return 'Track removed from favorites';
   }
 
-  async addAlbumToFavorites(albumId: string): Promise<string> {
-    // Check if album exists
-    const album = await this.albumService.getAlbumById(albumId);
+  addAlbumToFavorites(albumId: string) {
+    const album = this.data.albums.find((a) => a.id === albumId);
     if (!album) {
       throw new NotFoundException('Album not found');
     }
-    // Add album to favorites logic
+    this.data.favorites.albums.push(albumId);
     return 'Album added to favorites';
   }
 
-  async removeAlbumFromFavorites(albumId: string): Promise<string> {
-    // Check if album exists
-    const album = await this.albumService.getAlbumById(albumId);
-    if (!album) {
-      throw new NotFoundException('Album not found');
+  removeAlbumFromFavorites(albumId: string) {
+    const index = this.data.favorites.albums.findIndex((id) => id === albumId);
+    if (index === -1) {
+      throw new NotFoundException('Album not found in favorites');
     }
-    // Remove album from favorites logic
+    this.data.favorites.albums.splice(index, 1);
     return 'Album removed from favorites';
   }
 
-  async addArtistToFavorites(artistId: string): Promise<string> {
-    // Check if artist exists
-    const artist = await this.artistService.findOne(artistId);
+  addArtistToFavorites(artistId: string) {
+    const artist = this.data.artists.find((a) => a.id === artistId);
     if (!artist) {
       throw new NotFoundException('Artist not found');
     }
-    // Add artist to favorites logic
+    this.data.favorites.artists.push(artistId);
     return 'Artist added to favorites';
   }
 
-  async removeArtistFromFavorites(artistId: string): Promise<string> {
-    // Check if artist exists
-    const artist = await this.artistService.findOne(artistId);
-    if (!artist) {
-      throw new NotFoundException('Artist not found');
+  removeArtistFromFavorites(artistId: string) {
+    const index = this.data.favorites.artists.findIndex(
+      (id) => id === artistId,
+    );
+    if (index === -1) {
+      throw new NotFoundException('Artist not found in favorites');
     }
-    // Remove artist from favorites logic
+    this.data.favorites.artists.splice(index, 1);
     return 'Artist removed from favorites';
   }
 }

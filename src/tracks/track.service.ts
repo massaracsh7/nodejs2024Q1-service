@@ -1,17 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTrackDto, UpdateTrackDto, Track } from '../types';
 import { v4 as uuidv4 } from 'uuid';
+import { FavoritesService } from 'src/favorites/favorites.service';
+import { Data } from 'src/data/data.service';
 
 @Injectable()
 export class TrackService {
   private tracks: Track[] = [];
 
+  constructor(
+    private database: Data,
+    private favoriteService: FavoritesService,
+  ) {}
+
   findAll(): Track[] {
-    return this.tracks;
+    return this.database.tracks;
   }
 
   findOne(id: string): Track {
-    return this.tracks.find((track) => track.id === id);
+    const track = this.database.tracks.find((track) => track.id === id);
+    if (!track) {
+      throw new NotFoundException('Track not found');
+    }
+    return track;
   }
 
   create(createTrackDto: CreateTrackDto): Track {
@@ -19,28 +30,32 @@ export class TrackService {
       id: uuidv4(),
       ...createTrackDto,
     };
-    this.tracks.push(newTrack);
+    this.database.tracks.push(newTrack);
     return newTrack;
   }
 
   update(id: string, updateTrackDto: UpdateTrackDto): Track {
-    const index = this.tracks.findIndex((track) => track.id === id);
-    if (index === -1) {
-      return null;
+    const trackIndex = this.database.tracks.findIndex(
+      (track) => track.id === id,
+    );
+    if (trackIndex === -1) {
+      throw new NotFoundException('Track not found');
     }
-    this.tracks[index] = {
-      ...this.tracks[index],
+    this.database.tracks[trackIndex] = {
+      ...this.database.tracks[trackIndex],
       ...updateTrackDto,
     };
-    return this.tracks[index];
+    return this.database.tracks[trackIndex];
   }
 
   remove(id: string): boolean {
-    const index = this.tracks.findIndex((track) => track.id === id);
-    if (index === -1) {
-      return false;
+    const trackIndex = this.database.tracks.findIndex(
+      (track) => track.id === id,
+    );
+    if (trackIndex === -1) {
+      throw new NotFoundException('Track not found');
     }
-    this.tracks.splice(index, 1);
+    this.database.tracks.splice(trackIndex, 1);
     return true;
   }
 }

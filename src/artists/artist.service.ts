@@ -1,17 +1,26 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateArtistDto, UpdateArtistDto, Artist } from '../types';
+import { FavoritesService } from 'src/favorites/favorites.service';
+import { Data } from 'src/data/data.service';
 
 @Injectable()
 export class ArtistService {
-  private artists: Artist[] = [];
+  constructor(
+    private database: Data,
+    private favoriteService: FavoritesService,
+  ) {}
 
   findAll(): Artist[] {
-    return this.artists;
+    return this.database.artists;
   }
 
   findOne(id: string): Artist {
-    return this.artists.find((artist) => artist.id === id);
+    const artist = this.database.artists.find((artist) => artist.id === id);
+    if (!artist) {
+      throw new NotFoundException('Artist not found');
+    }
+    return artist;
   }
 
   create(createArtistDto: CreateArtistDto): Artist {
@@ -19,28 +28,32 @@ export class ArtistService {
       id: uuidv4(),
       ...createArtistDto,
     };
-    this.artists.push(newArtist);
+    this.database.artists.push(newArtist);
     return newArtist;
   }
 
   update(id: string, updateArtistDto: UpdateArtistDto): Artist {
-    const index = this.artists.findIndex((artist) => artist.id === id);
-    if (index === -1) {
-      return null; // Artist not found
+    const artistIndex = this.database.artists.findIndex(
+      (artist) => artist.id === id,
+    );
+    if (artistIndex === -1) {
+      throw new NotFoundException('Artist not found');
     }
-    this.artists[index] = {
-      ...this.artists[index],
+    this.database.artists[artistIndex] = {
+      ...this.database.artists[artistIndex],
       ...updateArtistDto,
     };
-    return this.artists[index];
+    return this.database.artists[artistIndex];
   }
 
   remove(id: string): boolean {
-    const index = this.artists.findIndex((artist) => artist.id === id);
-    if (index === -1) {
-      return false; // Artist not found
+    const artistIndex = this.database.artists.findIndex(
+      (artist) => artist.id === id,
+    );
+    if (artistIndex === -1) {
+      throw new NotFoundException('Artist not found');
     }
-    this.artists.splice(index, 1);
+    this.database.artists.splice(artistIndex, 1);
     return true;
   }
 }
