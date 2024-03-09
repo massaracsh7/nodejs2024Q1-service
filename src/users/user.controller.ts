@@ -6,52 +6,43 @@ import {
   Body,
   Delete,
   Put,
+  HttpCode,
+  UsePipes,
+  ValidationPipe,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, UpdatePasswordDto } from '../types';
+import { CreateUserDto, UpdateUserDto } from '../types';
 
-@Controller('users')
+@Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private userService: UserService) {}
 
   @Get()
-  findAll() {
+  getAll() {
     return this.userService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Get('/:id')
+  getOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.userService.findOne(id);
   }
 
+  @UsePipes(new ValidationPipe())
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  create(@Body() dto: CreateUserDto) {
+    return this.userService.create(dto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @UsePipes(new ValidationPipe())
+  @Put('/:id')
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateUserDto) {
+    return this.userService.updatePassword(id, dto);
+  }
+
+  @Delete('/:id')
+  @HttpCode(204)
+  delete(@Param('id', ParseUUIDPipe) id: string) {
     return this.userService.remove(id);
-  }
-
-  @Put(':id')
-  updatePassword(
-    @Param('id') id: string,
-    @Body() updatePasswordDto: UpdatePasswordDto,
-  ) {
-    if (!this.isValidUUID(id)) {
-      return { statusCode: 400, message: 'Invalid user ID' };
-    }
-    const updatedUser = this.userService.updatePassword(id, updatePasswordDto);
-    if (!updatedUser) {
-      return { statusCode: 404, message: 'User not found' };
-    }
-    return { statusCode: 200, data: updatedUser };
-  }
-
-  private isValidUUID(id: string): boolean {
-    const uuidRegex =
-      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-    return uuidRegex.test(id);
   }
 }

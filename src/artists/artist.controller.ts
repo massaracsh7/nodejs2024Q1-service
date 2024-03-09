@@ -10,13 +10,14 @@ import {
 import { ArtistService } from './artist.service';
 import { CreateArtistDto, UpdateArtistDto } from '../types';
 
-@Controller('artists')
+@Controller('artist')
 export class ArtistController {
   constructor(private readonly artistService: ArtistService) {}
 
   @Get()
   findAll() {
-    return this.artistService.findAll();
+    const artists = this.artistService.findAll();
+    return { statusCode: 200, data: artists };
   }
 
   @Get(':id')
@@ -28,7 +29,7 @@ export class ArtistController {
     if (!artist) {
       return { statusCode: 404, message: 'Artist not found' };
     }
-    return artist;
+    return { statusCode: 200, data: artist };
   }
 
   @Post()

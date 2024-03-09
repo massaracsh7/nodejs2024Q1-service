@@ -1,53 +1,72 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateUserDto, UpdatePasswordDto, User } from '../types';
+import {
+  Injectable,
+  NotFoundException,
+  HttpStatus,
+  HttpException,
+} from '@nestjs/common';
+import { CreateUserDto, UpdatePasswordDto, User, User_Created } from '../types';
 import { Data } from 'src/data/data.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UserService {
   constructor(private readonly database: Data) {}
 
-  findAll(): User[] {
-    return this.database.users;
-  }
-
-  findOne(id: string): User {
-    const user = this.database.users.find((user) => user.id === id);
-    if (!user) {
-      throw new NotFoundException('User not found');
+  async findAll(): Promise<User[]> {
+    const users = await this.database.users;
+    if (!users) {
+      throw new NotFoundException('Users are not found');
     }
-    return user;
+    return users.map((item) => new User_Created(item));
   }
 
-  create(createUserDto: CreateUserDto): User {
+  async findOne(id: string): Promise<User_Created> {
+    const user = await this.database.users.find((item) => item.id === id);
+    if (!user) {
+      throw new NotFoundException('User is not found');
+    }
+    return new User_Created(user);
+  }
+
+  create(createUserDto: CreateUserDto): User_Created {
     const newUser: User = {
-      id: 'sample-id', // You may want to generate a unique ID here
+      id: uuidv4(),
       ...createUserDto,
-      version: 0,
-      createdAt: 0,
-      updatedAt: 0,
+      version: 1,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
     };
     this.database.users.push(newUser);
-    return newUser;
+    const result = new User_Created(newUser);
+    delete result.password;
+    return result;
   }
 
-  updatePassword(
+  async updatePassword(
     id: string,
     updatePasswordDto: UpdatePasswordDto,
-  ): User | null | false {
-    const user = this.findOne(id);
-    if (user.password !== updatePasswordDto.oldPassword) {
-      return false;
+  ): Promise<User_Created> {
+    const i = this.database.users.findIndex((item) => item.id === id);
+    if (i === -1) {
+      throw new HttpException('User is not found', HttpStatus.NOT_FOUND);
     }
-    user.password = updatePasswordDto.newPassword;
-    return user;
+    if (this.database.users[i].password !== updatePasswordDto.oldPassword) {
+      throw new HttpException('Old password is wrong', HttpStatus.FORBIDDEN);
+    }
+    this.database.users[i].password = updatePasswordDto.newPassword;
+    this.database.users[i].version += 1;
+    this.database.users[i].updatedAt = Date.now();
+    const result = new User_Created(this.database.users[i]);
+    delete result.password;
+    return result;
   }
 
   remove(id: string): boolean {
-    const index = this.database.users.findIndex((user) => user.id === id);
-    if (index !== -1) {
-      this.database.users.splice(index, 1);
+    const i = this.database.users.findIndex((item) => item.id === id);
+    if (i !== -1) {
+      this.database.users.splice(i, 1);
       return true;
     }
-    return false;
+    throw new NotFoundException('User is not found');
   }
 }

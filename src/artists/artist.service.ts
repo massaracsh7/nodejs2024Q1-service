@@ -1,15 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateArtistDto, UpdateArtistDto, Artist } from '../types';
-import { FavoritesService } from 'src/favorites/favorites.service';
 import { Data } from 'src/data/data.service';
 
 @Injectable()
 export class ArtistService {
-  constructor(
-    private database: Data,
-    private favoriteService: FavoritesService,
-  ) {}
+  constructor(private database: Data) {}
 
   findAll(): Artist[] {
     return this.database.artists;
