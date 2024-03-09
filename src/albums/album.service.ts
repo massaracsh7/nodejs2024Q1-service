@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateAlbumDto, UpdateAlbumDto, Album } from '../types';
 import { FavoritesService } from 'src/favorites/favorites.service';
@@ -15,64 +11,58 @@ export class AlbumService {
     private favoriteService: FavoritesService,
   ) {}
 
-  getAllAlbums(): Album[] {
-    return this.database.albums;
+  async findAll(): Promise<Album[]> {
+    return await this.database.albums;
   }
 
-  getAlbumById(id: string): Album {
-    this.validateUUID(id);
-    const album = this.database.albums.find((album) => album.id === id);
+  async findOne(id: string): Promise<Album> {
+    const album = await this.database.albums.find((album) => album.id === id);
     if (!album) {
       throw new NotFoundException('Album not found');
     }
     return album;
   }
 
-  createAlbum(createAlbumDto: CreateAlbumDto): Album {
-    const { name, year, artistId } = createAlbumDto;
-    if (!name || !year || !artistId) {
-      throw new BadRequestException('Name, year, and artistId are required');
-    }
-    const album: Album = {
+  async create(createAlbumDto: CreateAlbumDto): Promise<Album> {
+    const newAlbum: Album = {
       id: uuidv4(),
-      name,
-      year,
-      artistId,
+      ...createAlbumDto,
     };
-    this.database.albums.push(album);
-    return album;
+    await this.database.albums.push(newAlbum);
+    return newAlbum;
   }
 
-  updateAlbum(id: string, updateAlbumDto: UpdateAlbumDto): Album {
-    this.validateUUID(id);
-    const { name, year, artistId } = updateAlbumDto;
-    const album = this.getAlbumById(id);
-    if (name) {
-      album.name = name;
+  async update(id: string, updateAlbumDto: UpdateAlbumDto): Promise<Album> {
+    const i = this.database.albums.findIndex((item) => item.id === id);
+    if (i === -1) {
+      throw new NotFoundException('Album is not found');
     }
-    if (year) {
-      album.year = year;
-    }
-    if (artistId) {
-      album.artistId = artistId;
-    }
-    return album;
+    this.database.albums[i] = {
+      ...this.database.albums[i],
+      ...updateAlbumDto,
+    };
+    return this.database.albums[i];
   }
 
-  async deleteAlbum(id: string): Promise<void> {
-    this.validateUUID(id);
+  async remove(id: string): Promise<boolean> {
     const index = this.database.albums.findIndex((album) => album.id === id);
     if (index === -1) {
       throw new NotFoundException('Album not found');
     }
     this.database.albums.splice(index, 1);
-  }
 
-  private validateUUID(id: string): void {
-    const uuidRegex =
-      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-    if (!uuidRegex.test(id)) {
-      throw new BadRequestException('Invalid UUID');
-    }
+    // Update associated tracks
+    this.database.tracks = this.database.tracks.map((track) => {
+      if (track.albumId === id) {
+        return {
+          ...track,
+          albumId: null,
+        };
+      } else {
+        return track;
+      }
+    });
+
+    return true;
   }
 }

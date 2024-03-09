@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Exclude } from 'class-transformer';
-import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export interface User {
   id: string;
@@ -108,15 +114,25 @@ export class UpdateTrackDto {
 }
 
 export class UpdateAlbumDto {
-  readonly name?: string;
-  readonly year?: number;
-  readonly artistId?: string;
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+  @IsNumber()
+  @IsNotEmpty()
+  year: number;
+  @IsOptional()
+  artistId: string | null;
 }
 
 export class CreateAlbumDto {
-  readonly name: string;
-  readonly year: number;
-  readonly artistId: string;
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+  @IsNumber()
+  @IsNotEmpty()
+  year: number;
+  @IsOptional()
+  artistId: string | null;
 }
 
 import { IsUUID } from 'class-validator';
