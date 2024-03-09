@@ -6,6 +6,10 @@ import {
   Body,
   Put,
   Delete,
+  ParseUUIDPipe,
+  ValidationPipe,
+  UsePipes,
+  HttpCode,
 } from '@nestjs/common';
 import { ArtistService } from './artist.service';
 import { CreateArtistDto, UpdateArtistDto } from '../types';
@@ -16,58 +20,32 @@ export class ArtistController {
 
   @Get()
   findAll() {
-    const artists = this.artistService.findAll();
-    return { statusCode: 200, data: artists };
+    return this.artistService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    if (!this.isValidUUID(id)) {
-      return { statusCode: 400, message: 'Invalid artist ID' };
-    }
-    const artist = this.artistService.findOne(id);
-    if (!artist) {
-      return { statusCode: 404, message: 'Artist not found' };
-    }
-    return { statusCode: 200, data: artist };
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.artistService.findOne(id);
   }
 
+  @UsePipes(new ValidationPipe())
   @Post()
   create(@Body() createArtistDto: CreateArtistDto) {
-    if (!createArtistDto.name) {
-      return { statusCode: 400, message: 'Artist name is required' };
-    }
-    const newArtist = this.artistService.create(createArtistDto);
-    return { statusCode: 201, data: newArtist };
+    return this.artistService.create(createArtistDto);
   }
 
+  @UsePipes(new ValidationPipe())
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateArtistDto: UpdateArtistDto) {
-    if (!this.isValidUUID(id)) {
-      return { statusCode: 400, message: 'Invalid artist ID' };
-    }
-    const updatedArtist = this.artistService.update(id, updateArtistDto);
-    if (!updatedArtist) {
-      return { statusCode: 404, message: 'Artist not found' };
-    }
-    return { statusCode: 200, data: updatedArtist };
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateArtistDto: UpdateArtistDto,
+  ) {
+    return this.artistService.update(id, updateArtistDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    if (!this.isValidUUID(id)) {
-      return { statusCode: 400, message: 'Invalid artist ID' };
-    }
-    const result = this.artistService.remove(id);
-    if (!result) {
-      return { statusCode: 404, message: 'Artist not found' };
-    }
-    return { statusCode: 204 };
-  }
-
-  private isValidUUID(id: string): boolean {
-    const uuidRegex =
-      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-    return uuidRegex.test(id);
+  @Delete('/:id')
+  @HttpCode(204)
+  delete(@Param('id', ParseUUIDPipe) id: string) {
+    return this.artistService.remove(id);
   }
 }

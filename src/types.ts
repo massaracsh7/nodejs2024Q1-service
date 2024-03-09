@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Exclude } from 'class-transformer';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 
 export interface User {
   id: string;
@@ -72,20 +72,25 @@ export class UpdatePasswordDto {
   @IsNotEmpty()
   @IsString()
   oldPassword: string;
-
   @IsNotEmpty()
   @IsString()
   newPassword: string; // new password
 }
 
 export class CreateArtistDto {
-  readonly name: string;
-  readonly grammy: boolean;
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+  @IsBoolean()
+  grammy: boolean;
 }
 
 export class UpdateArtistDto {
-  readonly name?: string;
-  readonly grammy?: boolean;
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+  @IsBoolean()
+  grammy: boolean;
 }
 
 export class CreateTrackDto {
