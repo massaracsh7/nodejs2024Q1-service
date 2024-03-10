@@ -13,28 +13,28 @@ export class TrackService {
     private favoriteService: FavoritesService,
   ) {}
 
-  findAll(): Track[] {
-    return this.database.tracks;
+  async findAll(): Promise<Track[]> {
+    return await this.database.tracks;
   }
 
-  findOne(id: string): Track {
-    const track = this.database.tracks.find((track) => track.id === id);
+  async findOne(id: string): Promise<Track> {
+    const track = await this.database.tracks.find((track) => track.id === id);
     if (!track) {
       throw new NotFoundException('Track not found');
     }
     return track;
   }
 
-  create(createTrackDto: CreateTrackDto): Track {
+  async create(createTrackDto: CreateTrackDto): Promise<Track> {
     const newTrack: Track = {
       id: uuidv4(),
       ...createTrackDto,
     };
-    this.database.tracks.push(newTrack);
+    await this.database.tracks.push(newTrack);
     return newTrack;
   }
 
-  update(id: string, updateTrackDto: UpdateTrackDto): Track {
+  async update(id: string, updateTrackDto: UpdateTrackDto): Promise<Track> {
     const trackIndex = this.database.tracks.findIndex(
       (track) => track.id === id,
     );
@@ -48,7 +48,7 @@ export class TrackService {
     return this.database.tracks[trackIndex];
   }
 
-  remove(id: string): boolean {
+  async remove(id: string): Promise<boolean> {
     const trackIndex = this.database.tracks.findIndex(
       (track) => track.id === id,
     );

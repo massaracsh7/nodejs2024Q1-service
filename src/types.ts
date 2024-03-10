@@ -100,17 +100,29 @@ export class UpdateArtistDto {
 }
 
 export class CreateTrackDto {
-  readonly name: string;
-  readonly artistId: string;
-  readonly albumId: string;
-  readonly duration: number;
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+  @IsOptional()
+  artistId: string | null;
+  @IsOptional()
+  albumId: string | null;
+  @IsNumber()
+  @IsNotEmpty()
+  duration: number;
 }
 
 export class UpdateTrackDto {
-  readonly name?: string;
-  readonly artistId?: string;
-  readonly albumId?: string;
-  readonly duration?: number;
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+  @IsOptional()
+  artistId: string | null;
+  @IsOptional()
+  albumId: string | null;
+  @IsNumber()
+  @IsNotEmpty()
+  duration: number;
 }
 
 export class UpdateAlbumDto {

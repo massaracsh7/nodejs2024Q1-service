@@ -6,11 +6,15 @@ import {
   Body,
   Put,
   Delete,
+  ParseUUIDPipe,
+  UsePipes,
+  ValidationPipe,
+  HttpCode,
 } from '@nestjs/common';
 import { TrackService } from './track.service';
 import { CreateTrackDto, UpdateTrackDto } from '../types';
 
-@Controller('tracks')
+@Controller('track')
 export class TrackController {
   constructor(private readonly trackService: TrackService) {}
 
@@ -20,22 +24,28 @@ export class TrackController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.trackService.findOne(id);
   }
 
+  @UsePipes(new ValidationPipe())
   @Post()
   create(@Body() createTrackDto: CreateTrackDto) {
     return this.trackService.create(createTrackDto);
   }
 
+  @UsePipes(new ValidationPipe())
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateTrackDto: UpdateTrackDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateTrackDto: UpdateTrackDto,
+  ) {
     return this.trackService.update(id, updateTrackDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  @HttpCode(204)
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.trackService.remove(id);
   }
 }
