@@ -1,13 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AlbumController } from './album.controller';
 import { AlbumService } from './album.service';
-import { FavoritesModule } from '../favorites/favorites.module'; // Import FavoritesModule
-import { FavoritesService } from 'src/favorites/favorites.service';
-
+import { FavoritesModule } from '../favorites/favorites.module';
 @Module({
-  imports: [FavoritesService, FavoritesModule], // Use FavoritesModule instead of FavoritesService
+  imports: [FavoritesModule],
   providers: [AlbumService],
   controllers: [AlbumController],
-  exports: [AlbumService, FavoritesService], // You don't need to export FavoritesService here
+  exports: [AlbumService],
 })
 export class AlbumModule {}

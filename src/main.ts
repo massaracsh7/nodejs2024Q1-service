@@ -1,21 +1,22 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { config } from 'dotenv';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { NestFactory } from '@nestjs/core';
+import { OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import { parse } from 'yaml';
+import { readFile } from 'fs/promises';
+import { resolve } from 'path';
+import { AppModule } from './app.module';
 
 config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const options = new DocumentBuilder()
-    .setTitle('Home Library Service')
-    .setDescription('Home Library Service')
-    .setVersion('1.0')
-    .build();
-
-  const document = SwaggerModule.createDocument(app, options);
-
-  SwaggerModule.setup('docs', app, document);
-  await app.listen(process.env.PORT || 4000);
+  const swaggerFilePath = resolve(__dirname, '../doc/api.yaml');
+  const swaggerFileData = await readFile(swaggerFilePath);
+  const stringifiedSwaggerData = String(swaggerFileData);
+  const port = process.env.PORT || 4000;
+  const document: OpenAPIObject = parse(stringifiedSwaggerData);
+  document.servers = [{ url: `http://localhost:${port}` }];
+  SwaggerModule.setup('doc', app, document);
+  await app.listen(port);
 }
 bootstrap();
