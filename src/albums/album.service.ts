@@ -48,6 +48,10 @@ export class AlbumService {
       throw new NotFoundException('Album is not found');
     }
     this.data.albums.splice(i, 1);
+    const iFav = this.data.favorites.albums.findIndex((item) => item === id);
+    if (iFav !== -1) {
+      this.favoriteService.removeAlbum(id);
+    }
     this.data.tracks = this.data.tracks.map((item) => {
       if (item.albumId === id) {
         return {

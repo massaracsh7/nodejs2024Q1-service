@@ -12,7 +12,7 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { TrackService } from './track.service';
-import { CreateTrackDto, UpdateTrackDto } from '../types';
+import { CreateTrackDto, UpdateTrackDto } from './dto/track.dto';
 
 @Controller('track')
 export class TrackController {
