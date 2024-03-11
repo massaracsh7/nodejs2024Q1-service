@@ -56,25 +56,25 @@ export class ArtistService {
     if (iFav !== -1) {
       this.favoriteService.removeArtist(id);
     }
-    this.data.tracks = this.data.tracks.map((track) => {
-      if (track.artistId === id) {
+    this.data.tracks = this.data.tracks.map((item) => {
+      if (item.artistId === id) {
         return {
-          ...track,
+          ...item,
           artistId: null,
         };
       } else {
-        return track;
+        return item;
       }
     });
 
-    this.data.albums = this.data.albums.map((album) => {
-      if (album.artistId === id) {
+    this.data.albums = this.data.albums.map((item) => {
+      if (item.artistId === id) {
         return {
-          ...album,
+          ...item,
           artistId: null,
         };
       } else {
-        return album;
+        return item;
       }
     });
     return true;

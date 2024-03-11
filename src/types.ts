@@ -10,30 +10,30 @@ export interface User {
 }
 
 export interface Artist {
-  id: string; // uuid v4
+  id: string;
   name: string;
   grammy: boolean;
 }
 
 export interface Track {
-  id: string; // uuid v4
+  id: string;
   name: string;
-  artistId: string | null; // refers to Artist
-  albumId: string | null; // refers to Album
-  duration: number; // integer number
+  artistId: string | null;
+  albumId: string | null;
+  duration: number;
 }
 
 export interface Album {
-  id: string; // uuid v4
+  id: string;
   name: string;
   year: number;
-  artistId: string | null; // refers to Artist
+  artistId: string | null;
 }
 
 export interface Favorites {
-  artists: string[]; // favorite artists ids
-  albums: string[]; // favorite albums ids
-  tracks: string[]; // favorite tracks ids
+  artists: string[];
+  albums: string[];
+  tracks: string[];
 }
 
 export interface FavoritesResponse {
@@ -66,28 +66,6 @@ export class UpdateTrackDto {
   @IsNumber()
   @IsNotEmpty()
   duration: number;
-}
-
-export class UpdateAlbumDto {
-  @IsNotEmpty()
-  @IsString()
-  name: string;
-  @IsNumber()
-  @IsNotEmpty()
-  year: number;
-  @IsOptional()
-  artistId: string | null;
-}
-
-export class CreateAlbumDto {
-  @IsNotEmpty()
-  @IsString()
-  name: string;
-  @IsNumber()
-  @IsNotEmpty()
-  year: number;
-  @IsOptional()
-  artistId: string | null;
 }
 
 import { IsUUID } from 'class-validator';

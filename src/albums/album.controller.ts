@@ -12,7 +12,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { AlbumService } from './album.service';
-import { CreateAlbumDto, UpdateAlbumDto } from '../types';
+import { CreateAlbumDto, UpdateAlbumDto } from './dto/album.dto';
 
 @Controller('album')
 export class AlbumController {

@@ -1,24 +1,22 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateAlbumDto, UpdateAlbumDto, Album } from '../types';
+import { CreateAlbumDto, UpdateAlbumDto } from './dto/album.dto';
+import { Album } from '../types';
 import { FavoritesService } from 'src/favorites/favorites.service';
 import { Data } from 'src/data/data.service';
 
 @Injectable()
 export class AlbumService {
-  constructor(
-    private database: Data,
-    private favoriteService: FavoritesService,
-  ) {}
+  constructor(private data: Data, private favoriteService: FavoritesService) {}
 
   async findAll(): Promise<Album[]> {
-    return await this.database.albums;
+    return this.data.albums;
   }
 
   async findOne(id: string): Promise<Album> {
-    const album = await this.database.albums.find((album) => album.id === id);
+    const album = this.data.albums.find((album) => album.id === id);
     if (!album) {
-      throw new NotFoundException('Album not found');
+      throw new NotFoundException('Album is not found');
     }
     return album;
   }
@@ -28,41 +26,38 @@ export class AlbumService {
       id: uuidv4(),
       ...createAlbumDto,
     };
-    await this.database.albums.push(newAlbum);
+    this.data.albums.push(newAlbum);
     return newAlbum;
   }
 
   async update(id: string, updateAlbumDto: UpdateAlbumDto): Promise<Album> {
-    const i = this.database.albums.findIndex((item) => item.id === id);
+    const i = this.data.albums.findIndex((item) => item.id === id);
     if (i === -1) {
       throw new NotFoundException('Album is not found');
     }
-    this.database.albums[i] = {
-      ...this.database.albums[i],
+    this.data.albums[i] = {
+      ...this.data.albums[i],
       ...updateAlbumDto,
     };
-    return this.database.albums[i];
+    return this.data.albums[i];
   }
 
   async remove(id: string): Promise<boolean> {
-    const index = this.database.albums.findIndex((album) => album.id === id);
-    if (index === -1) {
-      throw new NotFoundException('Album not found');
+    const i = this.data.albums.findIndex((item) => item.id === id);
+    if (i === -1) {
+      throw new NotFoundException('Album is not found');
     }
-    this.database.albums.splice(index, 1);
-
-    // Update associated tracks
-    this.database.tracks = this.database.tracks.map((track) => {
-      if (track.albumId === id) {
+    this.data.albums.splice(i, 1);
+    this.data.tracks = this.data.tracks.map((item) => {
+      if (item.albumId === id) {
         return {
-          ...track,
+          ...item,
           albumId: null,
         };
       } else {
-        return track;
+        return item;
       }
     });
-
     return true;
   }
 }
