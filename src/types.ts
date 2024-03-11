@@ -1,5 +1,3 @@
-import { Injectable } from '@nestjs/common';
-import { Exclude } from 'class-transformer';
 import {
   IsBoolean,
   IsNotEmpty,
@@ -15,30 +13,6 @@ export interface User {
   version: number;
   createdAt: number;
   updatedAt: number;
-}
-
-export class CreateUserDto {
-  @IsNotEmpty()
-  @IsString()
-  login: string;
-  @IsNotEmpty()
-  @IsString()
-  password: string;
-}
-
-export class User_Created implements User {
-  id: string;
-  login: string;
-  version: number;
-  createdAt: number;
-  updatedAt: number;
-
-  @Exclude()
-  password: string;
-
-  constructor(partial: Partial<User_Created>) {
-    Object.assign(this, partial);
-  }
 }
 
 export interface Artist {
@@ -152,27 +126,4 @@ import { IsUUID } from 'class-validator';
 export class AddFavoriteDto {
   @IsUUID()
   readonly id: string;
-}
-
-@Injectable()
-export class Database {
-  users: User[] = [];
-  artists: Artist[] = [];
-  tracks: Track[] = [];
-  albums: Album[] = [];
-  favorites: Favorites = {
-    artists: [],
-    albums: [],
-    tracks: [],
-  };
-}
-
-export class UpdateUserDto {
-  @IsNotEmpty()
-  @IsString()
-  oldPassword: string;
-
-  @IsNotEmpty()
-  @IsString()
-  newPassword: string;
 }
