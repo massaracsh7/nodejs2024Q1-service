@@ -12,7 +12,7 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { ArtistService } from './artist.service';
-import { CreateArtistDto, UpdateArtistDto } from '../types';
+import { CreateArtistDto, UpdateArtistDto } from './dto/artist.dto';
 
 @Controller('artist')
 export class ArtistController {

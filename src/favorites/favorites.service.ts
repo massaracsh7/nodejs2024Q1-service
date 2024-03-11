@@ -66,7 +66,7 @@ export class FavoritesService {
     return favoriteTracks;
   }
 
-  async addTrackToFavorites(trackId: string): Promise<Track | undefined> {
+  async addTrack(trackId: string): Promise<Track | undefined> {
     const track = this.database.tracks.find((t) => t.id === trackId);
     if (!track) {
       throw new UnprocessableEntityException('Track not found');
@@ -79,7 +79,7 @@ export class FavoritesService {
     return track;
   }
 
-  removeTrackFromFavorites(trackId: string) {
+  removeTrack(trackId: string) {
     const index = this.database.favorites.tracks.findIndex(
       (id) => id === trackId,
     );
@@ -90,7 +90,7 @@ export class FavoritesService {
     return 'Track removed from favorites';
   }
 
-  addAlbumToFavorites(albumId: string) {
+  addAlbum(albumId: string) {
     const album = this.database.albums.find((a) => a.id === albumId);
     if (!album) {
       throw new UnprocessableEntityException('Album not found');
@@ -103,7 +103,7 @@ export class FavoritesService {
     return 'Album added to favorites';
   }
 
-  removeAlbumFromFavorites(albumId: string) {
+  removeAlbum(albumId: string) {
     const index = this.database.favorites.albums.findIndex(
       (id) => id === albumId,
     );
@@ -114,7 +114,7 @@ export class FavoritesService {
     return 'Album removed from favorites';
   }
 
-  addArtistToFavorites(artistId: string) {
+  addArtist(artistId: string) {
     const artist = this.database.artists.find((a) => a.id === artistId);
     if (!artist) {
       throw new UnprocessableEntityException('Artist not found');
@@ -128,7 +128,7 @@ export class FavoritesService {
     return 'Artist added to favorites';
   }
 
-  removeArtistFromFavorites(artistId: string) {
+  removeArtist(artistId: string) {
     const index = this.database.favorites.artists.findIndex(
       (id) => id === artistId,
     );

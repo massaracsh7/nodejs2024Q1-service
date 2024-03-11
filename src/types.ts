@@ -1,10 +1,4 @@
-import {
-  IsBoolean,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export interface User {
   id: string;
@@ -46,31 +40,6 @@ export interface FavoritesResponse {
   artists: Artist[];
   albums: Album[];
   tracks: Track[];
-}
-
-export class UpdatePasswordDto {
-  @IsNotEmpty()
-  @IsString()
-  oldPassword: string;
-  @IsNotEmpty()
-  @IsString()
-  newPassword: string; // new password
-}
-
-export class CreateArtistDto {
-  @IsNotEmpty()
-  @IsString()
-  name: string;
-  @IsBoolean()
-  grammy: boolean;
-}
-
-export class UpdateArtistDto {
-  @IsNotEmpty()
-  @IsString()
-  name: string;
-  @IsBoolean()
-  grammy: boolean;
 }
 
 export class CreateTrackDto {

@@ -22,37 +22,37 @@ export class FavoritesController {
 
   @UsePipes(new ValidationPipe())
   @Post('/track/:id')
-  addTrackToFavorites(@Param('id', ParseUUIDPipe) trackId: string) {
-    return this.favoritesService.addTrackToFavorites(trackId);
+  addTrack(@Param('id', ParseUUIDPipe) trackId: string) {
+    return this.favoritesService.addTrack(trackId);
   }
 
   @Delete('/track/:id')
   @HttpCode(204)
-  removeTrackFromFavorites(@Param('id', ParseUUIDPipe) trackId: string) {
-    return this.favoritesService.removeTrackFromFavorites(trackId);
+  removeTrack(@Param('id', ParseUUIDPipe) trackId: string) {
+    return this.favoritesService.removeTrack(trackId);
   }
 
   @UsePipes(new ValidationPipe())
   @Post('/album/:id')
-  addAlbumToFavorites(@Param('id', ParseUUIDPipe) albumId: string) {
-    return this.favoritesService.addAlbumToFavorites(albumId);
+  addAlbum(@Param('id', ParseUUIDPipe) albumId: string) {
+    return this.favoritesService.addAlbum(albumId);
   }
 
   @Delete('/album/:id')
   @HttpCode(204)
-  removeAlbumFromFavorites(@Param('id', ParseUUIDPipe) albumId: string) {
-    return this.favoritesService.removeAlbumFromFavorites(albumId);
+  removeAlbum(@Param('id', ParseUUIDPipe) albumId: string) {
+    return this.favoritesService.removeAlbum(albumId);
   }
 
   @UsePipes(new ValidationPipe())
   @Post('/artist/:id')
-  addArtistToFavorites(@Param('id', ParseUUIDPipe) artistId: string) {
-    return this.favoritesService.addArtistToFavorites(artistId);
+  addArtist(@Param('id', ParseUUIDPipe) artistId: string) {
+    return this.favoritesService.addArtist(artistId);
   }
 
   @Delete('/artist/:id')
   @HttpCode(204)
-  removeArtistFromFavorites(@Param('id', ParseUUIDPipe) artistId: string) {
-    return this.favoritesService.removeArtistFromFavorites(artistId);
+  removeArtist(@Param('id', ParseUUIDPipe) artistId: string) {
+    return this.favoritesService.removeArtist(artistId);
   }
 }

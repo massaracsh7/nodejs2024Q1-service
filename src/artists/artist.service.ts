@@ -1,18 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { CreateArtistDto, UpdateArtistDto, Artist } from '../types';
+import { Artist } from '../types';
+import { CreateArtistDto, UpdateArtistDto } from './dto/artist.dto';
 import { Data } from 'src/data/data.service';
 import { FavoritesService } from 'src/favorites/favorites.service';
 
 @Injectable()
 export class ArtistService {
-  constructor(
-    private database: Data,
-    private favoriteService: FavoritesService,
-  ) {}
+  constructor(private data: Data, private favoriteService: FavoritesService) {}
 
   async findAll(): Promise<Artist[]> {
-    const result = await this.database.artists;
+    const result = this.data.artists;
     if (!result) {
       throw new NotFoundException('Artists are not found');
     }
@@ -20,7 +18,7 @@ export class ArtistService {
   }
 
   async findOne(id: string): Promise<Artist> {
-    const result = await this.database.artists.find((item) => item.id === id);
+    const result = this.data.artists.find((item) => item.id === id);
     if (!result) {
       throw new NotFoundException('Artist is not found');
     }
@@ -32,38 +30,33 @@ export class ArtistService {
       id: uuidv4(),
       ...createArtistDto,
     };
-    await this.database.artists.push(newArtist);
+    this.data.artists.push(newArtist);
     return newArtist;
   }
 
   async update(id: string, updateArtistDto: UpdateArtistDto): Promise<Artist> {
-    const i = this.database.artists.findIndex((item) => item.id === id);
+    const i = this.data.artists.findIndex((item) => item.id === id);
     if (i === -1) {
       throw new NotFoundException('Artist is not found');
     }
-    this.database.artists[i] = {
-      ...this.database.artists[i],
+    this.data.artists[i] = {
+      ...this.data.artists[i],
       ...updateArtistDto,
     };
-    return this.database.artists[i];
+    return this.data.artists[i];
   }
 
   async remove(id: string): Promise<boolean> {
-    const i = this.database.artists.findIndex((item) => item.id === id);
+    const i = this.data.artists.findIndex((item) => item.id === id);
     if (i === -1) {
       throw new NotFoundException('Artist is not found');
     }
-    await this.database.artists.splice(i, 1);
-
-    const iFav = this.database.favorites.artists.findIndex(
-      (item) => item === id,
-    );
-
+    this.data.artists.splice(i, 1);
+    const iFav = this.data.favorites.artists.findIndex((item) => item === id);
     if (iFav !== -1) {
-      this.favoriteService.removeArtistFromFavorites(id);
+      this.favoriteService.removeArtist(id);
     }
-
-    this.database.tracks = this.database.tracks.map((track) => {
+    this.data.tracks = this.data.tracks.map((track) => {
       if (track.artistId === id) {
         return {
           ...track,
@@ -74,7 +67,7 @@ export class ArtistService {
       }
     });
 
-    this.database.albums = this.database.albums.map((album) => {
+    this.data.albums = this.data.albums.map((album) => {
       if (album.artistId === id) {
         return {
           ...album,
