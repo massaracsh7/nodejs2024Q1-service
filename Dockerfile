@@ -9,6 +9,8 @@ RUN npm ci --production
 
 COPY . .
 
+RUN npm install -g @nestjs/cli
+
 RUN npm run build
 
 FROM node:20.11.1-alpine
@@ -24,4 +26,4 @@ RUN npm ci --only=production
 
 EXPOSE 3000
 
-CMD ["node", "dist/index.js"]
+CMD ["npm", "run", "start:dev"]
