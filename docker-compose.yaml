@@ -5,15 +5,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: node:20.11.1-alpine
     container_name: app
-    command: npm run start:dev
+    command: npm start
     restart: always
     ports:
-      - "${PORT}:${PORT}"
+      - ${PORT}:${PORT}
+    volumes:
+      - ./src:/app/src
     networks:
       - docker-network
-  
+
   postgres:
     image: postgres
     container_name: db
@@ -23,8 +24,10 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
       - DATABASE_URL=${DATABASE_URL}
+    volumes:
+      - /var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - 5432:5432
     networks:
       - docker-network
 

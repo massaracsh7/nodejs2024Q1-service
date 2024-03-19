@@ -5,25 +5,13 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci --production
+RUN npm install --production
 
+RUN npm install @nestjs/cli
 COPY . .
-
-RUN npm install -g @nestjs/cli
 
 RUN npm run build
 
-FROM node:20.11.1-alpine
-
-WORKDIR /app
-
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/dist ./dist
-
-RUN npm cache clean --force
-
-RUN npm ci --only=production
-
 EXPOSE 3000
 
-CMD ["npm", "run", "start:dev"]
+CMD [ "npm", "run", "start:dev" ]
