@@ -2,15 +2,19 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { Artist } from '../types';
 import { CreateArtistDto, UpdateArtistDto } from './dto/artist.dto';
-import { Data } from 'src/data/data.service';
+//import { Data } from 'src/data/data.service';
+import { Prisma } from 'src/prisma/prisma.service';
 import { FavoritesService } from 'src/favorites/favorites.service';
 
 @Injectable()
 export class ArtistService {
-  constructor(private data: Data, private favoriteService: FavoritesService) {}
+  constructor(
+    private prisma: Prisma,
+    private favoriteService: FavoritesService,
+  ) {}
 
   async findAll(): Promise<Artist[]> {
-    const result = this.data.artists;
+    const result = this.prisma.artists;
     if (!result) {
       throw new NotFoundException('Artists are not found');
     }
@@ -18,7 +22,7 @@ export class ArtistService {
   }
 
   async findOne(id: string): Promise<Artist> {
-    const result = this.data.artists.find((item) => item.id === id);
+    const result = this.prisma.artists.find((item) => item.id === id);
     if (!result) {
       throw new NotFoundException('Artist is not found');
     }
@@ -30,33 +34,33 @@ export class ArtistService {
       id: uuidv4(),
       ...createArtistDto,
     };
-    this.data.artists.push(newArtist);
+    this.prisma.artists.push(newArtist);
     return newArtist;
   }
 
   async update(id: string, updateArtistDto: UpdateArtistDto): Promise<Artist> {
-    const i = this.data.artists.findIndex((item) => item.id === id);
+    const i = this.prisma.artists.findIndex((item) => item.id === id);
     if (i === -1) {
       throw new NotFoundException('Artist is not found');
     }
-    this.data.artists[i] = {
-      ...this.data.artists[i],
+    this.prisma.artists[i] = {
+      ...this.prisma.artists[i],
       ...updateArtistDto,
     };
-    return this.data.artists[i];
+    return this.prisma.artists[i];
   }
 
   async remove(id: string): Promise<boolean> {
-    const i = this.data.artists.findIndex((item) => item.id === id);
+    const i = this.prisma.artists.findIndex((item) => item.id === id);
     if (i === -1) {
       throw new NotFoundException('Artist is not found');
     }
-    this.data.artists.splice(i, 1);
-    const iFav = this.data.favorites.artists.findIndex((item) => item === id);
+    this.prisma.artists.splice(i, 1);
+    const iFav = this.prisma.favorites.artists.findIndex((item) => item === id);
     if (iFav !== -1) {
       this.favoriteService.removeArtist(id);
     }
-    this.data.tracks = this.data.tracks.map((item) => {
+    this.prisma.tracks = this.prisma.tracks.map((item) => {
       if (item.artistId === id) {
         return {
           ...item,
@@ -67,7 +71,7 @@ export class ArtistService {
       }
     });
 
-    this.data.albums = this.data.albums.map((item) => {
+    this.prisma.albums = this.prisma.albums.map((item) => {
       if (item.artistId === id) {
         return {
           ...item,
