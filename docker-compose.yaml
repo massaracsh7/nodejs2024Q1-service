@@ -2,32 +2,31 @@ version: '3.9'
 
 services:
   app:
-    build:
+    build: 
       context: .
-      dockerfile: Dockerfile
     container_name: app
-    command: npm start
     restart: always
     ports:
-      - ${PORT}:${PORT}
+      - "${PORT}:${PORT}"
     volumes:
       - ./src:/app/src
     networks:
       - docker-network
 
   postgres:
-    image: postgres
-    container_name: db
+    build:
+      context: ./db
+    container_name: postgres
     restart: always
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - DATABASE_URL=${DATABASE_URL}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      DATABASE_URL: ${DATABASE_URL}
     volumes:
       - /var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - "5432:5432"
     networks:
       - docker-network
 
