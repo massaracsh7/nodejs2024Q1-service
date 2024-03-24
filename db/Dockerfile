@@ -1,3 +1,1 @@
-FROM postgres
-
-EXPOSE 5432
+FROM postgres:15.3-alpine3.17
