@@ -11,11 +11,26 @@
 
 * Go to downloaded folder: $ cd nodejs2024Q1-service.
 
+* Go to branch: dev-2.
+
 * Install dependencies: $ npm install
 
 * Rename .env.example to .env
 
+* Rin Docker Desktop
+
 ## Available scripts ##
+
+* **docker compose up**
+Run docker build and start
+
+* **npm run scan**
+
+Run vulnerabilities inspect
+
+* **npm run test:docker**
+
+Run tests
 
 * **npm run start**
 Run the app in development mode 

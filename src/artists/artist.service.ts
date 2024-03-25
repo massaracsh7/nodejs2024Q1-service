@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { v4 as uuidv4 } from 'uuid';
-import { Artist } from '../types';
+//import { v4 as uuidv4 } from 'uuid';
+import { Artist } from 'prisma/prisma-client';
 import { CreateArtistDto, UpdateArtistDto } from './dto/artist.dto';
 //import { Data } from 'src/data/data.service';
 import { Prisma } from 'src/prisma/prisma.service';
@@ -32,17 +32,17 @@ export class ArtistService {
   }
 
   async update(id: string, updateArtistDto: UpdateArtistDto): Promise<Artist> {
-    const updatedArtist = await this.prisma.artist.update({
+    const newArtist = await this.prisma.artist.update({
       where: { id },
       data: { ...updateArtistDto },
     });
-    return updatedArtist;
+    return newArtist;
   }
 
   async remove(ID: string) {
-    const albums = await this.prisma.album.findMany();
-    for (const album of albums) {
-      const { id, name, year, artistId } = album;
+    const albumsArr = await this.prisma.album.findMany();
+    for (const item of albumsArr) {
+      const { id, name, year, artistId } = item;
       if (artistId === ID) {
         await this.prisma.album.update({
           where: { id },
@@ -56,9 +56,9 @@ export class ArtistService {
       }
     }
 
-    const tracks = await this.prisma.track.findMany();
-    for (const track of tracks) {
-      const { id, name, artistId, albumId, duration } = track;
+    const tracksArr = await this.prisma.track.findMany();
+    for (const item of tracksArr) {
+      const { id, name, artistId, albumId, duration } = item;
       if (artistId === ID) {
         await this.prisma.track.update({
           where: { id },
@@ -73,11 +73,11 @@ export class ArtistService {
       }
     }
 
-    const artist = await this.prisma.favouritesArtist.findMany();
-    const favArtist = artist.find(({ artistId }) => artistId === ID);
+    const artistArr = await this.prisma.favoritesArtist.findMany();
+    const artistSearch = artistArr.find((item) => item.artistID === ID);
 
-    if (favArtist) {
-      await this.prisma.favouritesArtist.delete({ where: { artistId: ID } });
+    if (artistSearch) {
+      await this.prisma.favoritesArtist.delete({ where: { artistID: ID } });
     }
     await this.prisma.artist.delete({ where: { id: ID } });
   }

@@ -1,9 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Track } from '../types';
+import { Track } from 'prisma/prisma-client';
 import { CreateTrackDto, UpdateTrackDto } from './dto/track.dto';
-import { v4 as uuidv4 } from 'uuid';
 import { FavoritesService } from 'src/favorites/favorites.service';
-//import { Data } from 'src/data/data.service';
 import { Prisma } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -18,11 +16,11 @@ export class TrackService {
   }
 
   async findOne(id: string): Promise<Track> {
-    const track = this.prisma.track.findUnique({ where: { id } });
-    if (!track) {
+    const result = this.prisma.track.findUnique({ where: { id } });
+    if (!result) {
       throw new NotFoundException('Track is not found');
     }
-    return track;
+    return result;
   }
 
   async create(createTrackDto: CreateTrackDto): Promise<Track> {
@@ -40,11 +38,10 @@ export class TrackService {
   }
 
   async remove(id: string) {
-    const track = await this.prisma.favouritesTrack.findMany();
-    const favTrack = track.find(({ trackId }) => trackId === id);
-
-    if (favTrack) {
-      await this.prisma.favouritesTrack.delete({ where: { trackId: id } });
+    const track = await this.prisma.favoritesTrack.findMany();
+    const result = track.find((item) => item.trackID === id);
+    if (result) {
+      await this.prisma.favoritesTrack.delete({ where: { trackID: id } });
     }
     await this.prisma.track.delete({ where: { id } });
   }

@@ -34,8 +34,9 @@ model Artist {
 }
 
 model FavoritesArtist {
-  artists  Artist? @relation(fields: [artistID], references: [id], onDelete: Cascade)
-  artistID String  @unique
+  id       Int         @id @default(autoincrement())
+  artistId String      @unique
+  artist   Artist      @relation(fields: [artistId], references: [id])
 
   @@map("favouritesArtist")
 }
@@ -53,8 +54,9 @@ model Album {
 }
 
 model FavoritesAlbum {
-  albums  Album? @relation(fields: [albumID], references: [id], onDelete: Cascade)
-  albumID String @unique
+  id      Int         @id @default(autoincrement())
+  albumId String      @unique
+  album   Album       @relation(fields: [albumId], references: [id])
 
   @@map("favouritesAlbum")
 }
@@ -73,8 +75,9 @@ model Track {
 }
 
 model FavoritesTrack {
-  tracks  Track? @relation(fields: [trackID], references: [id], onDelete: Cascade)
-  trackID String @unique
+  id      Int    @id @default(autoincrement())
+  trackId String @unique
+  track   Track  @relation(fields: [trackId], references: [id])
 
   @@map("favouritesTrack")
 }
