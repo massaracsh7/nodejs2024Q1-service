@@ -5,26 +5,41 @@
 - Git - [Download & Install Git](https://git-scm.com/downloads).
 - Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
 
-## Downloading
+## Setting up ##
 
-```
-git clone {repository URL}
-```
+* Clone this repo: $ git clone https://github.com/massaracsh7/nodejs2024Q1-service.git
 
-## Installing NPM modules
+* Go to downloaded folder: $ cd nodejs2024Q1-service.
 
-```
-npm install
-```
+* Go to branch: dev-2.
 
-## Running application
+* Install dependencies: $ npm install
 
-```
-npm start
-```
+* Rename .env.example to .env
 
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
+* Rin Docker Desktop
+
+## Available scripts ##
+
+* **docker compose up**
+Run docker build and start
+
+* **npm run scan**
+
+Run vulnerabilities inspect
+
+* **npm run test:docker**
+
+Run tests
+
+* **npm run start**
+Run the app in development mode 
+
+* **npm run start:prod**
+Run the app in production mode
+
+* **swagger**
+After starting the app you can open in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
 For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
 ## Testing
@@ -64,9 +79,3 @@ npm run lint
 ```
 npm run format
 ```
-
-### Debugging in VSCode
-
-Press <kbd>F5</kbd> to debug.
-
-For more information, visit: https://code.visualstudio.com/docs/editor/debugging
