@@ -6,7 +6,7 @@ services:
       context: .
     container_name: node-app
     restart: always
-    image: node-app-img
+    image: massaracsh7/node-app-img
     ports:
       - "${PORT}:${PORT}"
     volumes:
@@ -25,7 +25,7 @@ services:
       context: ./db
     container_name: db
     restart: always
-    image: postgres
+    image: massaracsh7/postgres
     expose:
       - ${POSTGRES_PORT}
     ports:
