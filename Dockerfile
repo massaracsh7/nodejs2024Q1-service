@@ -3,9 +3,10 @@ FROM node:20-alpine3.17
 WORKDIR /app
 
 COPY package*.json ./
+
 COPY prisma ./prisma
 
-RUN npm ci && npm cache clean --force
+RUN npm install && npm cache clean --force
 
 RUN npx prisma generate
 
