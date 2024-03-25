@@ -17,38 +17,64 @@ model User {
   id        String @id @default(uuid())
   login     String
   password  String
-  version   Int    @default(autoincrement())
-  createdAt Float
-  updatedAt Float
+  version   Int    @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Artist {
-  id                   String  @id @default(uuid())
-  name                 String
-  grammy               Boolean
-  Album                Album[]
-  favoritesFavoritesId String?
+  id     String       @id @default(uuid())
+  name   String
+  grammy Boolean
+  albums Album[]
+  tracks Track[]
+  favorites FavoritesArtist?
+
+  @@map("artist")
+}
+
+model FavoritesArtist {
+  artists  Artist? @relation(fields: [artistID], references: [id], onDelete: Cascade)
+  artistID String  @unique
+
+  @@map("favouritesArtist")
 }
 
 model Album {
-  id       String  @id @default(uuid())
+  id       String      @id @default(uuid())
   name     String
-  year     Float
-  artist   Artist? @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  year     Int
   artistId String?
+  artist   Artist?     @relation(fields: [artistId], references: [id], onDelete: SetNull)
+  tracks   Track[]
+  favorites   FavoritesAlbum[]
+
+  @@map("album")
+}
+
+model FavoritesAlbum {
+  albums  Album? @relation(fields: [albumID], references: [id], onDelete: Cascade)
+  albumID String @unique
+
+  @@map("favouritesAlbum")
 }
 
 model Track {
-  id       String  @id @default(uuid())
+  id       String      @id @default(uuid())
   name     String
   artistId String?
+  artist   Artist?     @relation(fields: [artistId], references: [id], onDelete: SetNull)
   albumId  String?
+  album    Album?      @relation(fields: [albumId], references: [id], onDelete: SetNull)
   duration Int
+  favorites  FavoritesTrack[]
+
+   @@map("track")
 }
 
-model Favorites {
-  favoritesId String   @id @default(uuid())
-  artists     String[]
-  albums      String[]
-  tracks      String[]
+model FavoritesTrack {
+  tracks  Track? @relation(fields: [trackID], references: [id], onDelete: Cascade)
+  trackID String @unique
+
+  @@map("favouritesTrack")
 }

@@ -14,15 +14,11 @@ export class ArtistService {
   ) {}
 
   async findAll(): Promise<Artist[]> {
-    const result = this.prisma.artists;
-    if (!result) {
-      throw new NotFoundException('Artists are not found');
-    }
-    return result;
+    return this.prisma.artist.findMany();
   }
 
   async findOne(id: string): Promise<Artist> {
-    const result = this.prisma.artists.find((item) => item.id === id);
+    const result = this.prisma.artist.findUnique({ where: { id } });
     if (!result) {
       throw new NotFoundException('Artist is not found');
     }
@@ -30,57 +26,59 @@ export class ArtistService {
   }
 
   async create(createArtistDto: CreateArtistDto): Promise<Artist> {
-    const newArtist: Artist = {
-      id: uuidv4(),
-      ...createArtistDto,
-    };
-    this.prisma.artists.push(newArtist);
-    return newArtist;
+    return await this.prisma.artist.create({
+      data: { ...createArtistDto },
+    });
   }
 
   async update(id: string, updateArtistDto: UpdateArtistDto): Promise<Artist> {
-    const i = this.prisma.artists.findIndex((item) => item.id === id);
-    if (i === -1) {
-      throw new NotFoundException('Artist is not found');
-    }
-    this.prisma.artists[i] = {
-      ...this.prisma.artists[i],
-      ...updateArtistDto,
-    };
-    return this.prisma.artists[i];
+    const updatedArtist = await this.prisma.artist.update({
+      where: { id },
+      data: { ...updateArtistDto },
+    });
+    return updatedArtist;
   }
 
-  async remove(id: string): Promise<boolean> {
-    const i = this.prisma.artists.findIndex((item) => item.id === id);
-    if (i === -1) {
-      throw new NotFoundException('Artist is not found');
-    }
-    this.prisma.artists.splice(i, 1);
-    const iFav = this.prisma.favorites.artists.findIndex((item) => item === id);
-    if (iFav !== -1) {
-      this.favoriteService.removeArtist(id);
-    }
-    this.prisma.tracks = this.prisma.tracks.map((item) => {
-      if (item.artistId === id) {
-        return {
-          ...item,
-          artistId: null,
-        };
-      } else {
-        return item;
+  async remove(ID: string) {
+    const albums = await this.prisma.album.findMany();
+    for (const album of albums) {
+      const { id, name, year, artistId } = album;
+      if (artistId === ID) {
+        await this.prisma.album.update({
+          where: { id },
+          data: {
+            id,
+            name,
+            year,
+            artistId: null,
+          },
+        });
       }
-    });
+    }
 
-    this.prisma.albums = this.prisma.albums.map((item) => {
-      if (item.artistId === id) {
-        return {
-          ...item,
-          artistId: null,
-        };
-      } else {
-        return item;
+    const tracks = await this.prisma.track.findMany();
+    for (const track of tracks) {
+      const { id, name, artistId, albumId, duration } = track;
+      if (artistId === ID) {
+        await this.prisma.track.update({
+          where: { id },
+          data: {
+            id,
+            name,
+            artistId: null,
+            albumId,
+            duration,
+          },
+        });
       }
-    });
-    return true;
+    }
+
+    const artist = await this.prisma.favouritesArtist.findMany();
+    const favArtist = artist.find(({ artistId }) => artistId === ID);
+
+    if (favArtist) {
+      await this.prisma.favouritesArtist.delete({ where: { artistId: ID } });
+    }
+    await this.prisma.artist.delete({ where: { id: ID } });
   }
 }

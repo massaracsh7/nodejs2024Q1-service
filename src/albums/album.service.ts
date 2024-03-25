@@ -14,11 +14,11 @@ export class AlbumService {
   ) {}
 
   async findAll(): Promise<Album[]> {
-    return this.prisma.albums;
+    return this.prisma.album.findMany();
   }
 
   async findOne(id: string): Promise<Album> {
-    const album = this.prisma.albums.find((album) => album.id === id);
+    const album = this.prisma.album.findUnique({ where: { id } });
     if (!album) {
       throw new NotFoundException('Album is not found');
     }
@@ -26,46 +26,43 @@ export class AlbumService {
   }
 
   async create(createAlbumDto: CreateAlbumDto): Promise<Album> {
-    const newAlbum: Album = {
-      id: uuidv4(),
-      ...createAlbumDto,
-    };
-    this.prisma.albums.push(newAlbum);
-    return newAlbum;
+    return await this.prisma.album.create({
+      data: { ...createAlbumDto },
+    });
   }
 
   async update(id: string, updateAlbumDto: UpdateAlbumDto): Promise<Album> {
-    const i = this.prisma.albums.findIndex((item) => item.id === id);
-    if (i === -1) {
-      throw new NotFoundException('Album is not found');
-    }
-    this.prisma.albums[i] = {
-      ...this.prisma.albums[i],
-      ...updateAlbumDto,
-    };
-    return this.prisma.albums[i];
+    const updatedAlbum = await this.prisma.album.update({
+      where: { id },
+      data: { ...updateAlbumDto },
+    });
+    return updatedAlbum;
   }
 
-  async remove(id: string): Promise<boolean> {
-    const i = this.prisma.albums.findIndex((item) => item.id === id);
-    if (i === -1) {
-      throw new NotFoundException('Album is not found');
-    }
-    this.prisma.albums.splice(i, 1);
-    const iFav = this.prisma.favorites.albums.findIndex((item) => item === id);
-    if (iFav !== -1) {
-      this.favoriteService.removeAlbum(id);
-    }
-    this.prisma.tracks = this.prisma.tracks.map((item) => {
-      if (item.albumId === id) {
-        return {
-          ...item,
-          albumId: null,
-        };
-      } else {
-        return item;
+  async remove(ID: string) {
+    const tracks = await this.prisma.track.findMany();
+    for (const track of tracks) {
+      const { id, name, artistId, albumId, duration } = track;
+      if (albumId === ID) {
+        await this.prisma.track.update({
+          where: { id },
+          data: {
+            id,
+            name,
+            artistId,
+            albumId: null,
+            duration,
+          },
+        });
       }
-    });
-    return true;
+    }
+
+    const album = await this.prisma.favouritesAlbum.findMany();
+    const favAlbum = album.find(({ albumId }) => albumId === ID);
+
+    if (favAlbum) {
+      await this.prisma.favouritesAlbum.delete({ where: { albumId: ID } });
+    }
+    await this.prisma.album.delete({ where: { id: ID } });
   }
 }

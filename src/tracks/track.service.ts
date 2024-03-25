@@ -14,11 +14,11 @@ export class TrackService {
   ) {}
 
   async findAll(): Promise<Track[]> {
-    return this.prisma.tracks;
+    return this.prisma.track.findMany();
   }
 
   async findOne(id: string): Promise<Track> {
-    const track = this.prisma.tracks.find((track) => track.id === id);
+    const track = this.prisma.track.findUnique({ where: { id } });
     if (!track) {
       throw new NotFoundException('Track is not found');
     }
@@ -26,36 +26,26 @@ export class TrackService {
   }
 
   async create(createTrackDto: CreateTrackDto): Promise<Track> {
-    const newTrack: Track = {
-      id: uuidv4(),
-      ...createTrackDto,
-    };
-    this.prisma.tracks.push(newTrack);
-    return newTrack;
+    return await this.prisma.track.create({
+      data: { ...createTrackDto },
+    });
   }
 
   async update(id: string, updateTrackDto: UpdateTrackDto): Promise<Track> {
-    const i = this.prisma.tracks.findIndex((item) => item.id === id);
-    if (i === -1) {
-      throw new NotFoundException('Track is not found');
-    }
-    this.prisma.tracks[i] = {
-      ...this.prisma.tracks[i],
-      ...updateTrackDto,
-    };
-    return this.prisma.tracks[i];
+    const updatedTrack = await this.prisma.track.update({
+      where: { id },
+      data: { ...updateTrackDto },
+    });
+    return updatedTrack;
   }
 
-  async remove(id: string): Promise<boolean> {
-    const i = this.prisma.tracks.findIndex((item) => item.id === id);
-    if (i === -1) {
-      throw new NotFoundException('Track is not found');
+  async remove(id: string) {
+    const track = await this.prisma.favouritesTrack.findMany();
+    const favTrack = track.find(({ trackId }) => trackId === id);
+
+    if (favTrack) {
+      await this.prisma.favouritesTrack.delete({ where: { trackId: id } });
     }
-    this.prisma.tracks.splice(i, 1);
-    const iFav = this.prisma.favorites.tracks.findIndex((item) => item === id);
-    if (iFav !== -1) {
-      this.favoriteService.removeTrack(id);
-    }
-    return true;
+    await this.prisma.track.delete({ where: { id } });
   }
 }
