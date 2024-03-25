@@ -21,7 +21,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "start:migrate:dev": "npx prisma migrate deploy && npm run start:dev",
-    "scan": "docker scout cves node-app-img",
+    "scan": "docker scout cves massaracsh7/node-app-img",
     "test:docker": "docker exec -it node-app npm run test"
   },
   "dependencies": {
