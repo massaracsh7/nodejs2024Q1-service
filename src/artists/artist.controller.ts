@@ -10,6 +10,7 @@ import {
   ValidationPipe,
   UsePipes,
   HttpCode,
+  NotFoundException,
 } from '@nestjs/common';
 import { ArtistService } from './artist.service';
 import { CreateArtistDto, UpdateArtistDto } from './dto/artist.dto';
@@ -25,7 +26,11 @@ export class ArtistController {
 
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.artistService.findOne(id);
+    const result = this.artistService.findOne(id);
+    if (!result) {
+      throw new NotFoundException();
+    }
+    return result;
   }
 
   @UsePipes(new ValidationPipe())

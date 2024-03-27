@@ -17,7 +17,7 @@ export class TrackService {
 
   async findOne(id: string): Promise<Track> {
     const result = this.prisma.track.findUnique({ where: { id } });
-    if (!result) {
+    if (result === null) {
       throw new NotFoundException('Track is not found');
     }
     return result;
@@ -30,6 +30,10 @@ export class TrackService {
   }
 
   async update(id: string, updateTrackDto: UpdateTrackDto): Promise<Track> {
+    const result = this.prisma.track.findUnique({ where: { id } });
+    if (result === null) {
+      throw new NotFoundException('Track is not found');
+    }
     const updatedTrack = await this.prisma.track.update({
       where: { id },
       data: { ...updateTrackDto },
@@ -38,11 +42,15 @@ export class TrackService {
   }
 
   async remove(id: string) {
-    const track = await this.prisma.favoritesTrack.findMany();
-    const result = track.find((item) => item.trackID === id);
+    const tracks = await this.prisma.favoritesTrack.findMany();
+    const result = tracks.find((item) => item.trackId === id);
+    if (!result) {
+      throw new NotFoundException('Track is not found');
+    }
     if (result) {
-      await this.prisma.favoritesTrack.delete({ where: { trackID: id } });
+      await this.prisma.favoritesTrack.delete({ where: { trackId: id } });
     }
     await this.prisma.track.delete({ where: { id } });
+    return true;
   }
 }

@@ -32,6 +32,10 @@ export class AlbumService {
   }
 
   async update(id: string, updateAlbumDto: UpdateAlbumDto): Promise<Album> {
+    const result = this.prisma.album.findUnique({ where: { id } });
+    if (!result) {
+      throw new NotFoundException('Album is not found');
+    }
     const updatedAlbum = await this.prisma.album.update({
       where: { id },
       data: { ...updateAlbumDto },
@@ -39,11 +43,15 @@ export class AlbumService {
     return updatedAlbum;
   }
 
-  async remove(ID: string) {
+  async remove(id: string) {
+    const result = this.prisma.album.findUnique({ where: { id } });
+    if (!result) {
+      throw new NotFoundException('Album is not found');
+    }
     const tracksArr = await this.prisma.track.findMany();
     for (const item of tracksArr) {
       const { id, name, artistId, albumId, duration } = item;
-      if (albumId === ID) {
+      if (albumId === id) {
         await this.prisma.track.update({
           where: { id },
           data: {
@@ -58,11 +66,11 @@ export class AlbumService {
     }
 
     const album = await this.prisma.favoritesAlbum.findMany();
-    const albumSearch = album.find((item) => item.albumID === ID);
+    const albumSearch = album.find((item) => item.albumId === id);
 
     if (albumSearch) {
-      await this.prisma.favoritesAlbum.delete({ where: { albumID: ID } });
+      await this.prisma.favoritesAlbum.delete({ where: { albumId: id } });
     }
-    await this.prisma.album.delete({ where: { id: ID } });
+    await this.prisma.album.delete({ where: { id } });
   }
 }

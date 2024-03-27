@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 //import { v4 as uuidv4 } from 'uuid';
 import { Artist } from 'prisma/prisma-client';
 import { CreateArtistDto, UpdateArtistDto } from './dto/artist.dto';
@@ -14,13 +19,17 @@ export class ArtistService {
   ) {}
 
   async findAll(): Promise<Artist[]> {
-    return this.prisma.artist.findMany();
+    const result = this.prisma.artist.findMany();
+    if (!result) {
+      throw new HttpException('Artists are not found', HttpStatus.NOT_FOUND);
+    }
+    return result;
   }
 
   async findOne(id: string): Promise<Artist> {
-    const result = this.prisma.artist.findUnique({ where: { id } });
+    const result = this.prisma.artist.findFirstOrThrow({ where: { id } });
     if (!result) {
-      throw new NotFoundException('Artist is not found');
+      throw new NotFoundException();
     }
     return result;
   }
@@ -32,6 +41,10 @@ export class ArtistService {
   }
 
   async update(id: string, updateArtistDto: UpdateArtistDto): Promise<Artist> {
+    const result = this.prisma.artist.findFirstOrThrow({ where: { id } });
+    if (!result) {
+      throw new HttpException('Artist is not found', HttpStatus.NOT_FOUND);
+    }
     const newArtist = await this.prisma.artist.update({
       where: { id },
       data: { ...updateArtistDto },
@@ -39,11 +52,15 @@ export class ArtistService {
     return newArtist;
   }
 
-  async remove(ID: string) {
+  async remove(id: string) {
+    const result = this.prisma.artist.findFirstOrThrow({ where: { id } });
+    if (!result) {
+      throw new HttpException('Artist is not found', HttpStatus.NOT_FOUND);
+    }
     const albumsArr = await this.prisma.album.findMany();
     for (const item of albumsArr) {
       const { id, name, year, artistId } = item;
-      if (artistId === ID) {
+      if (artistId === id) {
         await this.prisma.album.update({
           where: { id },
           data: {
@@ -59,7 +76,7 @@ export class ArtistService {
     const tracksArr = await this.prisma.track.findMany();
     for (const item of tracksArr) {
       const { id, name, artistId, albumId, duration } = item;
-      if (artistId === ID) {
+      if (artistId === id) {
         await this.prisma.track.update({
           where: { id },
           data: {
@@ -74,11 +91,10 @@ export class ArtistService {
     }
 
     const artistArr = await this.prisma.favoritesArtist.findMany();
-    const artistSearch = artistArr.find((item) => item.artistID === ID);
-
+    const artistSearch = artistArr.find((item) => item.artistId === id);
     if (artistSearch) {
-      await this.prisma.favoritesArtist.delete({ where: { artistID: ID } });
+      await this.prisma.favoritesArtist.delete({ where: { artistId: id } });
     }
-    await this.prisma.artist.delete({ where: { id: ID } });
+    await this.prisma.artist.delete({ where: { id } });
   }
 }

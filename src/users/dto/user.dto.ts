@@ -4,8 +4,8 @@ export class User_Created {
   id: string;
   login: string;
   version: number;
-  createdAt: number;
-  updatedAt: number;
+  createdAt: Date;
+  updatedAt: Date;
   password: string;
 
   constructor(partial: Partial<User_Created>) {
